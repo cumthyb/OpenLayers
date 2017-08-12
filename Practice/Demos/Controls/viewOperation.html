@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>ViewOperation</title>
+    <link rel="stylesheet" type="text/css" href="../../libs/ol4/ol.css">
+    <script src="../../libs/ol4/ol-debug.js" type="text/javascript"></script>
+    <script src="../../libs/jquery-3.2.1.js" type="text/javascript"></script>
+    <style>
+        #map{
+            height:100%;
+            width:100%;
+        }
+        #map .buttonContainer{
+            float:left;
+            position:absolute;
+            left:5px;
+            bottom:5px;
+            overflow:auto;
+            z-index:2000;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="map" class="map">
+        <div class="buttonContainer">
+            <button id="zoomOut">缩小</button>
+            <button id="zoomIn">放大</button>
+            <button id="zoomTo">平移到武汉</button>
+            <button id="zoomRest">复位</button>
+        </div>
+        <script>
+            var map = new ol.Map({
+                target : "map",
+                layers : [
+                    //加载瓦片图层数据
+                    new ol.layer.Tile({
+                        source : new ol.source.OSM() //图层数据源
+                    })
+                ],
+                view : new ol.View({
+                    center : [12000000, 4000000], //地图初始中心点
+                    zoom : 10, //地图初始显示级别
+                    rotation : Math.PI / 6
+                })
+            });
+
+            var view = map.getView();
+            var zoom = view.getZoom();
+            var center = view.getCenter();
+            var rotation = view.getRotation();
+
+            $("#zoomOut").click(function(){
+                var zoom = view.getZoom();
+                view.setZoom(zoom - 1);
+            });
+            $("#zoomIn").click(function(){
+                var zoom = view.getZoom();
+                view.setZoom(zoom + 1);
+            });
+            $("#zoomTo").click(function(){
+                var wh = ol.proj.fromLonLat([114.31667, 30.51667]);
+                view.setCenter(wh);
+            });
+            $("#zoomRest").click(function(){
+                view.setZoom(zoom);
+                view.setCenter(center);
+                view.setRotation(rotation);
+            });
+
+        </script>
+    </div>
+</body>
+</html>
