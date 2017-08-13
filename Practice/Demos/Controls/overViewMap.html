@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>鹰眼图控件</title>
+    <link rel="stylesheet" type="text/css" href="../../libs/ol4/ol.css">
+    <script src="../../libs/ol4/ol-debug.js" type="text/javascript"></script>
+    <script src="../../libs/jquery-3.2.1.js" type="text/javascript"></script>
+    <style>
+        .overViewMap{
+            bottom: auto;
+            left: auto;
+            right: 0; /* 右侧显示 */
+            top: 0;  /* 顶部显示 */
+        }
+
+        /* 鹰眼控件展开时控件外框的样式 */
+        .overViewMap:not(.ol-collapsed)  {
+            border: 1px solid black;
+        }
+        /* 鹰眼控件中地图容器样式 */
+        .overViewMap .ol-overviewmap-map {
+            border: none;
+            width: 300px;
+        }
+        /* 鹰眼控件中显示当前窗口中主图区域的边框 */
+        .overViewMap .ol-overviewmap-box {
+            border: 2px solid red;
+            cursor:pointer;
+        }
+        /* 鹰眼控件展开时其控件按钮图标的样式 */
+        .overViewMap:not(.ol-collapsed) button{
+            bottom: auto;
+            left: auto;
+            right: 1px;
+            top: 1px;
+        }
+
+    </style>
+</head>
+<body>
+    <div id="map" class="map"></div>
+    <script type="text/javascript">
+
+        //实例化Map对象加载地图
+        var map = new ol.Map({
+            target: 'map', //地图容器div的ID
+            //地图容器中加载的图层
+            layers: [
+                //加载瓦片图层数据
+                new ol.layer.Tile({
+                    source: new ol.source.OSM() //图层对应数据源，此为加载OpenStreetMap在线瓦片服务数据
+                })
+            ],
+            //地图视图设置
+            view: new ol.View({
+                center: [0, 0], //地图初始中心点
+                zoom: 2  //地图初始显示级别
+            }),
+            //加载控件到地图容器中
+            controls: ol.control.defaults()//默认控件
+        });
+
+        map.addControl(new ol.control.OverviewMap({
+            className:'overViewMap',
+            collapsed: true, //初始为展开显示方式
+            collapseLabel: '+',
+            label: '-',
+            tipLabel:"T"
+
+        }));
+
+    </script>
+</body>
+</html>
