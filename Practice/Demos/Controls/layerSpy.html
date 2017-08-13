@@ -45,7 +45,7 @@
                 center : [12000000, 4000000], //地图初始中心点
                 zoom : 10 //地图初始显示级别
             }),
-            layers : [imgLayer, roadLayer],
+            layers : [roadLayer, imgLayer],
             control : ol.control.defaults()
         });
 
@@ -65,9 +65,9 @@
                 radius = Math.min(radius + 5, 150);
                 map.render();
             }
-            else (evt.which === 40 )
+            else if (evt.which === 40 )
             {//Up
-                radius = Math.min(radius - 5, 25);
+                radius = Math.max(radius - 5, 25);
                 map.render();
             }
         });
@@ -91,9 +91,9 @@
             ctx.beginPath();
 
             if(mouseposition){
-                ctx.arc(mouseposition[0]*pixelRatio,mouseposition[1]*pixelRatio,radius*pixelRatio,0,Math.PI*2);
-                ctx.lineWidth=5*pixelRatio;
-                ctx.strokeColor='rgba(0,0,0,0.5)';
+                ctx.arc(mouseposition[0] * pixelRatio, mouseposition[1] * pixelRatio, radius * pixelRatio, 0, Math.PI * 2);
+                ctx.lineWidth = 5 * pixelRatio;
+                ctx.strokeColor = 'rgba(0,0,0,0.5)';
 
                 ctx.stroke();
 
@@ -102,8 +102,8 @@
             ctx.clip();
         })
 
-        imgLayer.on("postcompose",function(evt){
-            var ctx=evt.context;
+        imgLayer.on("postcompose", function(evt){
+            var ctx = evt.context;
             ctx.restore();
         })
 
