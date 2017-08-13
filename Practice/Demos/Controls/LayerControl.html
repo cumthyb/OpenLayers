@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>图层控制</title>
+    <link rel="stylesheet" type="text/css" href="../../libs/ol4/ol.css">
+    <script src="../../libs/ol4/ol-debug.js" type="text/javascript"></script>
+    <script src="../../libs/jquery-3.2.1.js" type="text/javascript"></script>
+
+    <style>
+        body, html, div, ul, li, iframe, p, img{
+            border:none; padding:0; margin:0;
+            font-size:14px;
+            font-family:"微软雅黑";
+        }
+        #map{
+            width:100%;
+            height:100%;
+            position:absolute;
+        }
+        #mousePosition{
+            position:absolute;
+            left:5px;
+            bottom:5px;
+            border:1px dashed red;
+            color:red;
+            z-index:2000;
+        }
+        #layerControl{
+            position:absolute;
+            bottom:5px;
+            min-width:200px;
+            max-height:200px;
+            right:0;
+            top:5px;
+            z-index:2001; /*在地图容器中的层，要设置z-index的值让其显示在地图上层*/
+            color:#ffffff;
+            background-color:#4c4e5a;
+            border-width:10px; /*边缘的宽度*/
+            border-radius:10px; /*圆角的大小 */
+            border-color:#000 #000 #000 #000; /*边框颜色*/
+        }
+        #layerControl .title{
+            width:100%;
+            font-weight:bold;
+            font-size:15px;
+            margin:10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="map" class="map">
+        <div id="layerControl" class="layerControl">
+            <div class="title">图层列表</div>
+            <ul id="layerTree"></ul>
+        </div>
+        <div id="mousePosition" class="mousePosition"></div>
+    </div>
+    <script>
+
+
+        //定义地图容器
+        var map = new ol.Map({
+            target : "map",
+            control : ol.control.defaults(),
+            layers : [
+                //加载瓦片图层数据
+                new ol.layer.Tile({
+                    source : new ol.source.OSM(),
+                    name : '世界地图(OSM瓦片)'
+                }),
+
+                new ol.layer.Vector({
+                    source : new ol.source.Vector({
+                        url : '../data/geojson/countries.geojson',
+                        format : new ol.format.GeoJSON()
+                    }),
+                    name : '国界(Json格式矢量图)'
+                }),
+                new ol.layer.Vector({
+                    source : new ol.source.Vector({
+                        url : '../data/kml/2012_Earthquakes_Mag5.kml',
+                        format : new ol.format.KML({
+                            extractStyles : false
+                        })
+                    }),
+                    name : '点(KML格式矢量图)'
+                })
+            ],
+            view : new ol.View({
+                    center : [12000000, 4000000], //地图初始中心点
+                    zoom : 3 //地图初始显示级别
+                }
+            )
+        });
+
+        map.addControl(new ol.control.MousePosition({
+            coordinateFormat : ol.coordinate.createStringXY(4), //坐标格式
+            projection : 'EPSG:4326', //地图投影坐标系（若未设置则输出为默认投影坐标系下的坐标）
+            className : 'mousePosition', //坐标信息显示样式，默认是'ol-mouse-position'
+            target : document.getElementById('mousePosition'), //显示鼠标位置信息的目标容器
+            undefinedHTML : '&nbsp;' //未定义坐标的标记
+        }));
+
+        var initLayerControl = function(map, layerTreeID){
+            var layers = map.getLayers();
+            var layerTree = $(layerTreeID);
+            layers.forEach(function(item){
+                var newE = $("<input type=\"checkbox\"/>");
+                newE.attr("checked", true);
+                var newELi = $("<li>" + item.get('name') + "</li>");
+
+                newE.change(function(){
+                    item.setVisible(!item.getVisible())
+                });
+                newE.prependTo(newELi);
+                layerTree.append(newELi);
+            }, this)
+        };
+        initLayerControl(map, "#layerTree");
+
+    </script>
+</body>
+</html>
