@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Bing地图图层探查</title>
+    <link rel="stylesheet" type="text/css" href="../../libs/ol4/ol.css">
+    <script src="../../libs/ol4/ol-debug.js" type="text/javascript"></script>
+    <script src="../../libs/jquery-3.2.1.js" type="text/javascript"></script>
+    <style>
+        #map{
+            width:100%;
+            height:100%;
+        }
+        #mouse-position{
+            float:left;
+            position:absolute;
+            bottom:5px;
+            left:10px;
+            width:200px;
+            height:20px;
+            z-index:2000;
+            border:1px solid red;
+            /*在地图容器中的层，要设置z-index的值让其显示在地图上层*/
+        }
+    </style>
+</head>
+<body>
+    <div id="map" class="map">
+        <div id="mouse-position"></div>
+    </div>
+    <script>
+
+        var key = 'AjplQ1rClfpeFOrGCshKt6fnHdbQ8YAPsGpVvq6EoKRTFfdhKju8aSCSWI0TXDZh'; //Bing地图的key
+
+        var roadLayer = new ol.layer.Tile({
+            source : new ol.source.BingMaps({key : key, imagerySet : 'Road'})
+        });
+        var imgLayer = new ol.layer.Tile({
+            source : new ol.source.BingMaps({key : key, imagerySet : 'Aerial'})
+        });
+
+        var map = new ol.Map({
+            target : "map",
+            view : new ol.View({
+                center : [12000000, 4000000], //地图初始中心点
+                zoom : 10 //地图初始显示级别
+            }),
+            layers : [imgLayer, roadLayer],
+            control : ol.control.defaults()
+        });
+
+        map.addControl(new ol.control.MousePosition(
+            {
+                coordinateFormat : ol.coordinate.createStringXY(4), //坐标格式
+                projection : 'EPSG:4326', //地图投影坐标系（若未设置则输出为默认投影坐标系下的坐标）
+                className : 'custom-mouse-position', //坐标信息显示样式，默认是'ol-mouse-position'
+                target : document.getElementById('mouse-position'), //显示鼠标位置信息的目标容器
+                undefinedHTML : '&nbsp;' //未定义坐标的标记
+            }
+        ))
+
+        var radius = 75;
+        $(document).keydown(function(evt){
+            if(evt.which === 38){//Up
+                radius = Math.min(radius + 5, 150);
+                map.render();
+            }
+            else (evt.which === 40 )
+            {//Up
+                radius = Math.min(radius - 5, 25);
+                map.render();
+            }
+        });
+
+        var mouseposition = null;
+        $(map.getViewport())
+            .mousemove(function(evt){
+                mouseposition = map.getEventPixel(evt.originalEvent);
+                map.render();
+            })
+            .mouseout(function(){
+
+                mouseposition = null;
+                map.render();
+            });
+
+        imgLayer.on("precompose", function(evt){
+            var ctx = evt.context;//影像图层画布
+            var pixelRatio = evt.frameState.pixelRatio;
+            ctx.save();
+            ctx.beginPath();
+
+            if(mouseposition){
+                ctx.arc(mouseposition[0]*pixelRatio,mouseposition[1]*pixelRatio,radius*pixelRatio,0,Math.PI*2);
+                ctx.lineWidth=5*pixelRatio;
+                ctx.strokeColor='rgba(0,0,0,0.5)';
+
+                ctx.stroke();
+
+            }
+
+            ctx.clip();
+        })
+
+        imgLayer.on("postcompose",function(evt){
+            var ctx=evt.context;
+            ctx.restore();
+        })
+
+    </script>
+</body>
+</html>
